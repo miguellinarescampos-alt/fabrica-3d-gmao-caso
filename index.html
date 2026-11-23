@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#101e29">
+  <meta name="description" content="Caso GMAO de mantenimiento industrial: planta 3D, solicitudes, hitos, costes e indicadores trazables.">
+  <title>Planta 1 · Caso GMAO 3D</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23101e29'/%3E%3Cpath d='M14 46V28l12 7V23l12 7V16h12v30Z' fill='%2374dfbe'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="./style.css">
+  <script type="importmap">
+    {"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}
+  </script>
+  <script type="module" src="./app.js"></script>
+</head>
+<body>
+  <a href="#contenido" class="skip-link">Saltar al contenido</a>
+  <header class="app-header">
+    <a class="brand" href="./" aria-label="Planta 1, inicio">
+      <span class="brand-icon" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M4 25V13l8 5v-8l8 5V5h8v20Z"/></svg></span>
+      <span>planta<span class="brand-number">01</span><small>MANTENIMIENTO · CASO GMAO</small></span>
+    </a>
+    <div class="header-description">De la pieza al indicador.<br><span>12–16 de octubre de 2026</span></div>
+    <span class="demo-badge"><span class="status-dot"></span> Caso documentado · sin conexión a equipos</span>
+  </header>
+  <nav class="section-nav" aria-label="Secciones del caso">
+    <a href="#planta">01 <span>Planta interactiva</span></a>
+    <a href="#solicitudes">02 <span>Solicitudes e hitos</span></a>
+    <a href="#indicadores">03 <span>Indicadores</span></a>
+    <a href="#auditoria">04 <span>Auditoría / Odoo</span></a>
+  </nav>
+  <main id="contenido">
+    <div class="case-intro">
+      <div><p class="eyebrow">DEL REGISTRO A LA DECISIÓN</p><h1>Un caso. Cada minuto explicado.</h1><p>Dos activos documentados, tres intervenciones y una lectura trazable de tiempos y costes.</p></div>
+      <div class="intro-summary" id="intro-summary"></div>
+    </div>
+    <section id="planta" class="workspace" aria-label="Planta interactiva y modos de fallo">
+      <div class="viewer">
+        <div class="viewer-heading">
+          <p class="eyebrow">PLANTA 1 <span>/ MODELO ESQUEMÁTICO</span></p>
+          <h2>Localiza el activo.<br>Comprende el efecto.</h2>
+          <p>Geometría orientativa, no plano a escala.</p>
+        </div>
+        <div id="scene-container" class="scene-container" aria-busy="true">
+          <canvas id="factory-canvas" tabindex="0" aria-label="Planta 3D. Arrastra para rotar, rueda para acercar, botón derecho para desplazar y flechas con el lienzo enfocado. Selecciona máquinas y piezas con un clic o usa el panel."></canvas>
+          <div id="machine-markers" class="machine-markers" aria-label="Activos de la escena"></div>
+          <div id="component-callout" class="component-callout" hidden><span class="callout-dot"></span><span><small>COMPONENTE SELECCIONADO</small><strong id="callout-name"></strong></span></div>
+          <div id="loading-state" class="loading-state" role="status"><span class="loader"></span><strong>Preparando la planta…</strong><span>Cargando el explorador 3D</span></div>
+          <div id="scene-error" class="scene-error" role="alert" hidden><span class="error-symbol" aria-hidden="true">!</span><h2>No pudimos iniciar la vista 3D</h2><p id="scene-error-message"></p><button class="button button-light" id="retry-button" type="button">Volver a intentar</button></div>
+        </div>
+        <div class="scene-tools"><span class="live-label">VISTA EXPLORABLE · NO TELEMETRÍA</span><button id="reset-camera" class="icon-button" type="button" disabled><span aria-hidden="true">⌂</span> Vista general</button></div>
+        <div class="viewer-footer">
+          <div class="scene-selection"><span class="selection-icon" aria-hidden="true">⌖</span><span><small>SELECCIÓN ACTUAL</small><strong id="selection-status">TC-01 · Torno CNC</strong></span></div>
+          <div class="navigation-hints"><span><b>Arrastrar</b> Rotar</span><span><b>Rueda / pellizcar</b> Zoom</span><span><b>Botón derecho / 2 dedos</b> Mover</span></div>
+        </div>
+        <div class="scene-caption"><span class="legend-dot mint"></span> Activo seleccionado <span class="legend-dot amber"></span> Pieza seleccionada ≠ alarma actual</div>
+      </div>
+      <aside class="inspector" aria-label="Activos y modos posibles u observados">
+        <div class="inspector-top"><span class="eyebrow">EXPLORADOR DE ACTIVOS</span><span class="step-count">2 DEL CASO + 1 DEMO</span></div>
+        <section aria-labelledby="machines-title"><div class="section-heading"><h2 id="machines-title"><span class="step-number">01</span> Elige un activo</h2></div><div id="machine-list" class="machine-list"></div></section>
+        <section class="fault-section" aria-labelledby="faults-title"><div class="section-heading"><h2 id="faults-title"><span class="step-number">02</span> Modos de fallo</h2><span class="simulation-tag">4 POSIBLES</span></div><p id="machine-description" class="section-description"></p><div id="fault-list" class="fault-list"></div></section>
+        <section class="detail-section" aria-labelledby="detail-title">
+          <div class="section-heading"><h2 id="detail-title"><span class="step-number">03</span> Componente y evidencia</h2></div>
+          <div id="detail-empty" class="detail-empty"><span aria-hidden="true">↖</span><p>Elige un modo para localizar la pieza. La etiqueta distingue posibilidad de ocurrencia documentada.</p></div>
+          <div id="fault-detail" class="fault-detail" hidden aria-live="polite">
+            <span id="fault-evidence" class="evidence-badge"></span>
+            <div class="detail-header"><span class="component-symbol" aria-hidden="true">⌖</span><div><small>COMPONENTE SELECCIONADO</small><h3 id="component-name"></h3></div></div>
+            <p id="fault-explanation"></p><div class="review-note"><strong>Qué consta en el caso</strong><p id="fault-review"></p></div>
+            <button id="open-case" class="text-button" type="button" hidden>Ver intervención documentada →</button>
+            <button id="clear-fault" class="text-button" type="button">Quitar resaltado</button>
+          </div>
+        </section>
+        <div class="educational-note"><span aria-hidden="true">i</span><p><strong>Un modelo, no un diagnóstico.</strong> La tercera máquina no tiene datos en este caso y no participa en ningún indicador. Cualquier revisión real exige aislamiento seguro y personal cualificado.</p></div>
+      </aside>
+    </section>
+
+    <section id="solicitudes" class="content-section" aria-labelledby="requests-title">
+      <div class="content-heading"><div><p class="eyebrow">02 / REGISTRO DE MANTENIMIENTO</p><h2 id="requests-title">Solicitudes e intervenciones</h2><p>Selecciona un caso para consultar sus seis hitos y el coste de cada fila.</p></div><div class="case-selector"><label for="case-select">Intervención</label><select id="case-select"><option value="C1">C1 · Correctivo · TC-01 · Sensor</option><option value="C2">C2 · Correctivo · TC-01 · Rodamiento</option><option value="P1">P1 · Preventivo · C-02</option></select></div></div>
+      <div id="request-content" aria-live="polite"></div>
+    </section>
+
+    <section id="indicadores" class="content-section" aria-labelledby="metrics-title">
+      <div class="content-heading"><div><p class="eyebrow">03 / CÁLCULOS REPRODUCIBLES</p><h2 id="metrics-title">Indicadores, con sus límites</h2><p>Calculados desde hitos, horas, tarifas y cantidades. No desde resultados prefijados.</p></div><span class="scope-badge">Robot demo excluido</span></div>
+      <div id="metrics-content"></div>
+    </section>
+
+    <section id="auditoria" class="content-section" aria-labelledby="audit-title">
+      <div class="content-heading"><div><p class="eyebrow">04 / TRAZABILIDAD Y CONTRASTE</p><h2 id="audit-title">Auditoría del caso</h2><p>Lo documentado, lo aclarado y lo que todavía falta comprobar.</p></div><span class="pending-badge">ODOO · PENDIENTE</span></div>
+      <div class="audit-grid">
+        <article class="surface"><h3>Fuentes y criterios</h3><ul class="audit-list"><li><strong>PDF y Excel del caso:</strong> activos, solicitudes, seis hitos, personal y materiales transcritos en <code>case-data.js</code>. No hay datos en vivo.</li><li><strong>Aceptación de P1:</strong> el PDF aclara el 16-oct-2026 a las 17:00. El Excel dejó la celda vacía con una nota; se aplica la aclaración del PDF.</li><li><strong>Recuperación ≠ cierre:</strong> se recupera/acepta la función antes del cierre administrativo. El cierre no prolonga la parada.</li><li><strong>P1 no es una avería:</strong> sin pérdida de función documentada; no genera parada ni en C-02 ni en TC-01. La planificación de P1 a las 16:15 no define el horario requerido del compresor.</li><li><strong>Alcance económico:</strong> solo mano de obra y materiales directos. No se estiman impuestos, lucro cesante ni costes indirectos.</li></ul></article>
+        <article class="surface"><div class="surface-title"><h3>Contraste con Odoo</h3><span class="pending-badge">PENDIENTE</span></div><p>El Excel no contiene el contraste Odoo completado. No se ha conectado, importado ni verificado ningún registro en Odoo.</p><div class="table-scroll"><table><caption>Lista de comprobaciones aún no realizadas</caption><thead><tr><th>Comprobación</th><th>Estado</th></tr></thead><tbody><tr><td>Activos y ubicaciones</td><td>PENDIENTE</td></tr><tr><td>C1, C2 y P1: tipo, planificación y estado</td><td>PENDIENTE</td></tr><tr><td>Seis hitos y aceptación de P1</td><td>PENDIENTE</td></tr><tr><td>Horas, tarifas y materiales por fila</td><td>PENDIENTE</td></tr><tr><td>Costes e indicadores derivados</td><td>PENDIENTE</td></tr></tbody></table></div><p class="small-note">Para cerrar la auditoría: contrastar cada registro y conservar evidencia de Odoo. Esta página no permite marcarlo como completado sin esa evidencia.</p></article>
+      </div>
+    </section>
+  </main>
+  <footer class="app-footer"><span>Planta 1 · Caso GMAO · octubre 2026</span><span>Three.js procedural · sin framework · sin integración Odoo</span><a href="./README.md">Documentación</a></footer>
+  <p id="announcement" class="sr-only" role="status" aria-live="polite"></p>
+  <noscript><div class="noscript-message">Activa JavaScript para explorar la planta y calcular los indicadores del caso.</div></noscript>
+</body>
+</html>
